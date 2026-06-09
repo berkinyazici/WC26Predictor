@@ -61,6 +61,43 @@ Görseller:
 
 Bu iki sonuç farklı olabilir: Monte Carlo olasılığı tüm koşuların dağılımını gösterir, best single simulation ise 1000 koşu içindeki en olası komple turnuva yoludur.
 
+### Şampiyonluk Olasılıkları
+
+![Champion probabilities](outputs/tournament/figures/champion_probabilities.png)
+
+| Sıra | Takım | Şampiyonluk | Final | Yarı Final | Çeyrek Final |
+| --- | --- | ---: | ---: | ---: | ---: |
+| 1 | Argentina | 12.2% | 20.5% | 32.5% | 46.9% |
+| 2 | France | 11.1% | 19.1% | 33.2% | 52.9% |
+| 3 | Spain | 10.1% | 17.2% | 30.1% | 44.5% |
+| 4 | Brazil | 9.3% | 17.2% | 30.0% | 50.1% |
+| 5 | Netherlands | 7.6% | 14.6% | 26.5% | 44.6% |
+| 6 | Croatia | 6.5% | 11.7% | 21.0% | 39.0% |
+| 7 | England | 6.4% | 11.0% | 19.6% | 38.4% |
+| 8 | Belgium | 6.0% | 13.4% | 24.9% | 48.6% |
+| 9 | Portugal | 5.1% | 11.2% | 20.9% | 39.1% |
+| 10 | Uruguay | 4.9% | 9.9% | 18.0% | 32.3% |
+
+### Aşama Olasılıkları
+
+![Stage probabilities](outputs/tournament/figures/stage_probabilities.png)
+
+Bu grafik takımların Round of 32, Round of 16, çeyrek final, yarı final, final ve şampiyonluk aşamalarına ulaşma olasılıklarını kümülatif olarak gösterir.
+
+### En Başarılı Tek Simülasyon Ağacı
+
+![Best tournament tree](outputs/tournament/figures/tournament_tree_best.png)
+
+1000 simülasyon içindeki en yüksek likelihood'a sahip tek turnuva ağacında France şampiyon olur. Bu ağaç dağılımsal en olası şampiyonu değil, tüm maç skorları birlikte değerlendirildiğinde en tutarlı tek senaryoyu temsil eder.
+
+### Grup Tabloları ve Model Açıklanabilirliği
+
+![Group tables](outputs/tournament/figures/group_tables.png)
+
+![Feature importance](outputs/tournament/figures/feature_importance.png)
+
+Feature importance grafiği modelin en çok `win_rate_last_year`, `avg_player_rating`, `possession_dominance`, `passing_accuracy` ve `fifa_points` gibi takım gücü/form göstergelerine dayandığını gösterir.
+
 ## Dosya Yapısı
 
 ```text
