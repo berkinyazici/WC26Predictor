@@ -1,48 +1,48 @@
 # WC26 Predictor
 
-FIFA World Cup 2026 için gerçek fikstür üzerinden grup aşamasından finale kadar turnuva simülasyonu yapan makine öğrenmesi projesi.
+A machine learning project that simulates the FIFA World Cup 2026 from the real group-stage fixture through the final.
 
-Proje artık yalnızca tek maç kazananı tahmin etmekle kalmıyor; resmi grup fikstürünü, maç tarihlerini, venue bilgilerini, Round of 32 slotlarını ve eleme ağacını kullanarak 1000 Monte Carlo simülasyonu üretiyor. Ayrıca bu simülasyonlar içinden en yüksek likelihood'a sahip tek turnuva akışını seçip doldurulmuş bir tournament tree görseli oluşturuyor.
+The project now goes beyond single-match winner prediction. It uses the official group fixture, match dates, venues, Round of 32 slots, and knockout dependencies to run 1,000 Monte Carlo tournament simulations. It also selects the highest-likelihood complete tournament path from those simulations and renders a filled broadcast-style tournament tree with country flags.
 
-## Mevcut Özellikler
+## Current Features
 
-- Gerçek WC26 fikstürü: `data/wc26_real_fixtures.csv`
-- 12 grup ve 72 grup maçı gerçek tarih/venue bilgisiyle simüle edilir.
-- Match 73-104 arasındaki resmi knockout slotları çözülür.
-- Grup aşamasında beraberlik, puan, gol averajı, atılan gol ve en iyi üçüncüler hesaplanır.
-- Eleme maçlarında beraberlikler extra time/penalties kararıyla çözülür.
-- 1000 Monte Carlo simülasyonundan takım bazlı ilerleme olasılıkları çıkarılır.
-- En yüksek likelihood'a sahip tek simülasyon ayrıca seçilir.
-- Final report ve görseller otomatik üretilir.
+- Real WC26 fixture file: `data/wc26_real_fixtures.csv`
+- 12 official groups and 72 group-stage matches simulated with real match dates and venues.
+- Official Match 73-104 knockout slots resolved from the fixture.
+- Group-stage standings with draws, points, goal difference, goals scored, and best third-place qualifiers.
+- Knockout draws resolved through extra time/penalties.
+- Team-level progression probabilities from 1,000 Monte Carlo simulations.
+- Highest-likelihood single tournament simulation selected separately from the probability distribution.
+- Final report, probability charts, group tables, feature importance plots, and a flag-based tournament tree generated automatically.
 
-## Model Özeti
+## Model Summary
 
-Model tarafında mevcut `WC26EnsembleModel` kullanılır:
+The prediction layer uses the existing `WC26EnsembleModel`:
 
 - XGBoost classifier
 - Random Forest classifier
 - 60/40 ensemble blend
 - Isotonic probability calibration
-- Engineered feature set: strength, attack potency, defensive solidity, squad quality, form consistency, possession dominance, star power
+- Engineered features for strength, attack potency, defensive solidity, squad quality, form consistency, possession dominance, and star power
 
-Turnuva simülasyonunda modelin takım skorları pairwise match probability'ye dönüştürülür. Skorlar Poisson tabanlı bir maç motoruyla üretilir.
+For tournament simulation, each team receives a model score, and pairwise match probabilities are derived from model-score differences, FIFA rank, and strength index. Scores are generated with a Poisson-based match engine.
 
-Not: Bazı gerçek WC26 takımları Kaggle veri setinde bulunmadığı için bu takımlar için konfederasyon ve FIFA rank benzeri metadata ile fallback feature satırları oluşturulur. Bu durum final report'ta model caveat olarak belirtilir.
+Some real WC26 teams are missing from the original Kaggle team-feature dataset. Those teams receive confederation/rank-based fallback feature rows, and this limitation is noted in the final report.
 
-## Önemli Çıktılar
+## Key Outputs
 
-Final rapor:
+Final report:
 
 - `reports/final_report.md`
 
-Simülasyon tabloları:
+Simulation tables:
 
 - `outputs/tournament/stage_probabilities.csv`
 - `outputs/tournament/best_group_matches.csv`
 - `outputs/tournament/best_knockout_matches.csv`
 - `outputs/tournament/feature_importance.csv`
 
-Görseller:
+Figures:
 
 - `outputs/tournament/figures/champion_probabilities.png`
 - `outputs/tournament/figures/stage_probabilities.png`
@@ -51,21 +51,21 @@ Görseller:
 - `outputs/tournament/figures/tournament_tree_best.png`
 - `outputs/tournament/figures/feature_importance.png`
 
-## Son Simülasyon Sonuçları
+## Latest Simulation Results
 
-1000 Monte Carlo çalıştırmasında:
+From the latest 1,000-run Monte Carlo simulation:
 
-- En yüksek şampiyonluk olasılığı: Argentina, yaklaşık 12.2%
-- En yüksek likelihood'a sahip tek simülasyonun şampiyonu: France
-- En iyi tek simülasyon finali: Algeria 0-3 France
+- Highest championship probability: Argentina, about 12.2%
+- Highest-likelihood single simulation champion: France
+- Best single simulation final: Algeria 0-3 France
 
-Bu iki sonuç farklı olabilir: Monte Carlo olasılığı tüm koşuların dağılımını gösterir, best single simulation ise 1000 koşu içindeki en olası komple turnuva yoludur.
+These are intentionally different concepts. Monte Carlo probabilities summarize the full distribution across all simulations, while the best single simulation is the most internally consistent complete tournament path among the 1,000 runs.
 
-### Şampiyonluk Olasılıkları
+### Championship Probabilities
 
 ![Champion probabilities](outputs/tournament/figures/champion_probabilities.png)
 
-| Sıra | Takım | Şampiyonluk | Final | Yarı Final | Çeyrek Final |
+| Rank | Team | Champion | Final | Semifinal | Quarterfinal |
 | --- | --- | ---: | ---: | ---: | ---: |
 | 1 | Argentina | 12.2% | 20.5% | 32.5% | 46.9% |
 | 2 | France | 11.1% | 19.1% | 33.2% | 52.9% |
@@ -78,32 +78,32 @@ Bu iki sonuç farklı olabilir: Monte Carlo olasılığı tüm koşuların dağ�
 | 9 | Portugal | 5.1% | 11.2% | 20.9% | 39.1% |
 | 10 | Uruguay | 4.9% | 9.9% | 18.0% | 32.3% |
 
-### Aşama Olasılıkları
+### Stage Progression Probabilities
 
 ![Stage probabilities](outputs/tournament/figures/stage_probabilities.png)
 
-Bu grafik takımların Round of 32, Round of 16, çeyrek final, yarı final, final ve şampiyonluk aşamalarına ulaşma olasılıklarını kümülatif olarak gösterir.
+This chart shows each leading team's cumulative probability of reaching the Round of 32, Round of 16, quarterfinal, semifinal, final, and champion stages.
 
-### En Başarılı Tek Simülasyon Ağacı
+### Best Single Simulation Tournament Tree
 
 ![Best tournament tree](outputs/tournament/figures/tournament_tree_best.png)
 
-1000 simülasyon içindeki en yüksek likelihood'a sahip tek turnuva ağacında France şampiyon olur. Bu ağaç dağılımsal en olası şampiyonu değil, tüm maç skorları birlikte değerlendirildiğinde en tutarlı tek senaryoyu temsil eder.
+The highest-likelihood single tournament path among the 1,000 simulations has France winning the tournament. This tree is not the same as the most likely champion distribution; it represents the most coherent full set of simulated match scores.
 
-### Grup Tabloları ve Model Açıklanabilirliği
+### Group Tables and Model Explainability
 
 ![Group tables](outputs/tournament/figures/group_tables.png)
 
 ![Feature importance](outputs/tournament/figures/feature_importance.png)
 
-Feature importance grafiği modelin en çok `win_rate_last_year`, `avg_player_rating`, `possession_dominance`, `passing_accuracy` ve `fifa_points` gibi takım gücü/form göstergelerine dayandığını gösterir.
+The feature-importance plot shows that the model relies most heavily on indicators such as `win_rate_last_year`, `avg_player_rating`, `possession_dominance`, `passing_accuracy`, and `fifa_points`.
 
-## Dosya Yapısı
+## Project Structure
 
 ```text
 WC26 Predictor/
 ├── data/
-│   ├── wc26_real_fixtures.csv       # Gerçek WC26 fikstürü
+│   ├── wc26_real_fixtures.csv       # Real WC26 fixture
 │   └── fifa_wc2026_pipeline.py
 ├── models/
 │   ├── ensemble_model.pkl
@@ -131,32 +131,32 @@ WC26 Predictor/
 └── run_cv_validation.py
 ```
 
-## Çalıştırma
+## How to Run
 
-Bağımlılıklar:
+Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Final report ve tüm turnuva görsellerini üretmek:
+Generate the final report and all tournament figures:
 
 ```bash
 python3 generate_final_report.py --simulations 1000
 ```
 
-Syntax kontrolü:
+Run syntax checks:
 
 ```bash
 PYTHONPYCACHEPREFIX=.pycache_tmp python3 -m compileall src generate_final_report.py
 ```
 
-Cross-validation pipeline:
+Run the cross-validation pipeline:
 
 ```bash
 python3 run_cv_validation.py
 ```
 
-## Geliştirme Notları
+## Future Work
 
-Bir sonraki model geliştirme adımı, takım bazlı winner label yerine gerçek match-level veriyle `home_win / draw / away_win` veya skor dağılımı modeli eğitmek olmalı. Böylece grup beraberlikleri, expected goals ve knockout sonuçları doğrudan modelden üretilebilir.
+The next modeling improvement should replace the current team-level winner label with explicit match-level training data. A direct `home_win / draw / away_win` model or score-distribution model would allow draws, expected goals, and knockout outcomes to be learned directly from match-pair features.

@@ -8,6 +8,7 @@ from typing import Dict, List
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.patches import Circle, Polygon, Rectangle
 import numpy as np
 import pandas as pd
 
@@ -156,6 +157,140 @@ def plot_bracket(knockout_matches: List, output_path: Path) -> None:
     plt.close(fig)
 
 
+FLAG_SPECS = {
+    "Algeria": ("vertical", ["#006233", "#ffffff"], "#d21034"),
+    "Argentina": ("horizontal", ["#74acdf", "#ffffff", "#74acdf"], "#f6b40e"),
+    "Australia": ("solid", ["#012169"], "#ffffff"),
+    "Belgium": ("vertical", ["#000000", "#ffd90c", "#ef3340"], None),
+    "Brazil": ("brazil", ["#009b3a", "#ffdf00", "#002776"], None),
+    "Canada": ("vertical", ["#d52b1e", "#ffffff", "#d52b1e"], None),
+    "Colombia": ("horizontal", ["#fcd116", "#003893", "#ce1126"], None),
+    "Croatia": ("horizontal", ["#ff0000", "#ffffff", "#171796"], "#d00000"),
+    "Curaçao": ("solid", ["#002b7f"], "#f9e814"),
+    "DR Congo": ("diagonal", ["#007fff", "#f7d618", "#ce1021"], None),
+    "Ecuador": ("horizontal", ["#ffdd00", "#034ea2", "#ed1c24"], None),
+    "England": ("cross", ["#ffffff", "#ce1124"], None),
+    "France": ("vertical", ["#002395", "#ffffff", "#ed2939"], None),
+    "Germany": ("horizontal", ["#000000", "#dd0000", "#ffce00"], None),
+    "Ghana": ("horizontal", ["#ce1126", "#fcd116", "#006b3f"], "#000000"),
+    "Iran": ("horizontal", ["#239f40", "#ffffff", "#da0000"], None),
+    "Japan": ("circle", ["#ffffff"], "#bc002d"),
+    "Mexico": ("vertical", ["#006847", "#ffffff", "#ce1126"], None),
+    "Morocco": ("solid", ["#c1272d"], "#006233"),
+    "Netherlands": ("horizontal", ["#ae1c28", "#ffffff", "#21468b"], None),
+    "New Zealand": ("solid", ["#00247d"], "#cc142b"),
+    "Norway": ("nordic", ["#ba0c2f", "#ffffff", "#00205b"], None),
+    "Portugal": ("vertical", ["#006600", "#ff0000"], "#ffcc00"),
+    "Qatar": ("vertical", ["#ffffff", "#8a1538"], None),
+    "Senegal": ("vertical", ["#00853f", "#fdef42", "#e31b23"], "#00853f"),
+    "South Africa": ("south_africa", ["#007a4d", "#ffb612", "#000000", "#de3831", "#002395", "#ffffff"], None),
+    "South Korea": ("circle", ["#ffffff"], "#cd2e3a"),
+    "Spain": ("horizontal", ["#aa151b", "#f1bf00", "#aa151b"], None),
+    "Sweden": ("nordic", ["#006aa7", "#fecc00", "#fecc00"], None),
+    "Switzerland": ("swiss", ["#d52b1e", "#ffffff"], None),
+    "Turkey": ("solid", ["#e30a17"], "#ffffff"),
+    "United States": ("stripes", ["#b22234", "#ffffff"], "#3c3b6e"),
+    "Uruguay": ("stripes", ["#ffffff", "#0038a8"], "#fcd116"),
+}
+
+
+def _draw_flag(ax, team: str, x: float, y: float, width: float, height: float, zorder: int = 5) -> None:
+    spec = FLAG_SPECS.get(team)
+    border = "#d8eef0"
+    if spec is None:
+        ax.add_patch(Rectangle((x, y), width, height, facecolor="#263f48", edgecolor=border, lw=0.6, zorder=zorder))
+        ax.text(x + width / 2, y + height / 2, team[:3].upper(), color="white", fontsize=5,
+                ha="center", va="center", zorder=zorder + 1)
+        return
+
+    kind, colors, accent = spec
+    ax.add_patch(Rectangle((x, y), width, height, facecolor=colors[0], edgecolor=border, lw=0.6, zorder=zorder))
+
+    if kind == "horizontal":
+        stripe_h = height / len(colors)
+        for idx, color in enumerate(colors):
+            ax.add_patch(Rectangle((x, y + height - (idx + 1) * stripe_h), width, stripe_h,
+                                   facecolor=color, edgecolor="none", zorder=zorder + 1))
+        if accent:
+            ax.add_patch(Circle((x + width * 0.50, y + height * 0.50), min(width, height) * 0.13,
+                                facecolor=accent, edgecolor="none", zorder=zorder + 2))
+    elif kind == "vertical":
+        stripe_w = width / len(colors)
+        for idx, color in enumerate(colors):
+            ax.add_patch(Rectangle((x + idx * stripe_w, y), stripe_w, height,
+                                   facecolor=color, edgecolor="none", zorder=zorder + 1))
+        if accent:
+            ax.add_patch(Circle((x + width * 0.50, y + height * 0.50), min(width, height) * 0.13,
+                                facecolor=accent, edgecolor="none", zorder=zorder + 2))
+    elif kind == "solid":
+        ax.add_patch(Rectangle((x, y), width, height, facecolor=colors[0], edgecolor="none", zorder=zorder + 1))
+        if accent:
+            ax.add_patch(Circle((x + width * 0.55, y + height * 0.52), min(width, height) * 0.13,
+                                facecolor=accent, edgecolor="none", zorder=zorder + 2))
+    elif kind == "circle":
+        ax.add_patch(Rectangle((x, y), width, height, facecolor=colors[0], edgecolor="none", zorder=zorder + 1))
+        ax.add_patch(Circle((x + width * 0.50, y + height * 0.50), min(width, height) * 0.25,
+                            facecolor=accent, edgecolor="none", zorder=zorder + 2))
+    elif kind == "cross":
+        ax.add_patch(Rectangle((x, y), width, height, facecolor=colors[0], edgecolor="none", zorder=zorder + 1))
+        ax.add_patch(Rectangle((x + width * 0.43, y), width * 0.14, height, facecolor=colors[1],
+                               edgecolor="none", zorder=zorder + 2))
+        ax.add_patch(Rectangle((x, y + height * 0.41), width, height * 0.18, facecolor=colors[1],
+                               edgecolor="none", zorder=zorder + 2))
+    elif kind == "nordic":
+        ax.add_patch(Rectangle((x, y), width, height, facecolor=colors[0], edgecolor="none", zorder=zorder + 1))
+        ax.add_patch(Rectangle((x + width * 0.30, y), width * 0.16, height, facecolor=colors[1],
+                               edgecolor="none", zorder=zorder + 2))
+        ax.add_patch(Rectangle((x, y + height * 0.40), width, height * 0.20, facecolor=colors[1],
+                               edgecolor="none", zorder=zorder + 2))
+        if len(colors) > 2 and colors[2] != colors[1]:
+            ax.add_patch(Rectangle((x + width * 0.34, y), width * 0.08, height, facecolor=colors[2],
+                                   edgecolor="none", zorder=zorder + 3))
+            ax.add_patch(Rectangle((x, y + height * 0.45), width, height * 0.10, facecolor=colors[2],
+                                   edgecolor="none", zorder=zorder + 3))
+    elif kind == "swiss":
+        ax.add_patch(Rectangle((x, y), width, height, facecolor=colors[0], edgecolor="none", zorder=zorder + 1))
+        ax.add_patch(Rectangle((x + width * 0.42, y + height * 0.22), width * 0.16, height * 0.56,
+                               facecolor=colors[1], edgecolor="none", zorder=zorder + 2))
+        ax.add_patch(Rectangle((x + width * 0.25, y + height * 0.39), width * 0.50, height * 0.18,
+                               facecolor=colors[1], edgecolor="none", zorder=zorder + 2))
+    elif kind == "brazil":
+        ax.add_patch(Rectangle((x, y), width, height, facecolor=colors[0], edgecolor="none", zorder=zorder + 1))
+        ax.add_patch(Polygon([
+            (x + width * 0.50, y + height * 0.90),
+            (x + width * 0.90, y + height * 0.50),
+            (x + width * 0.50, y + height * 0.10),
+            (x + width * 0.10, y + height * 0.50),
+        ], facecolor=colors[1], edgecolor="none", zorder=zorder + 2))
+        ax.add_patch(Circle((x + width * 0.50, y + height * 0.50), min(width, height) * 0.23,
+                            facecolor=colors[2], edgecolor="none", zorder=zorder + 3))
+    elif kind == "diagonal":
+        ax.add_patch(Rectangle((x, y), width, height, facecolor=colors[0], edgecolor="none", zorder=zorder + 1))
+        ax.add_patch(Polygon([(x, y + height * 0.10), (x + width * 0.12, y),
+                              (x + width, y + height * 0.90), (x + width * 0.88, y + height)],
+                             facecolor=colors[1], edgecolor="none", zorder=zorder + 2))
+        ax.add_patch(Polygon([(x, y + height * 0.18), (x + width * 0.06, y),
+                              (x + width, y + height * 0.82), (x + width * 0.94, y + height)],
+                             facecolor=colors[2], edgecolor="none", zorder=zorder + 3))
+    elif kind == "south_africa":
+        ax.add_patch(Rectangle((x, y + height / 2), width, height / 2, facecolor=colors[3], edgecolor="none", zorder=zorder + 1))
+        ax.add_patch(Rectangle((x, y), width, height / 2, facecolor=colors[4], edgecolor="none", zorder=zorder + 1))
+        ax.add_patch(Polygon([(x, y), (x + width * 0.48, y + height / 2), (x, y + height)],
+                             facecolor=colors[0], edgecolor="none", zorder=zorder + 2))
+        ax.add_patch(Polygon([(x, y + height * 0.08), (x + width * 0.34, y + height / 2),
+                              (x, y + height * 0.92)], facecolor=colors[2], edgecolor="none", zorder=zorder + 3))
+    elif kind == "stripes":
+        stripe_h = height / 7
+        for idx in range(7):
+            ax.add_patch(Rectangle((x, y + idx * stripe_h), width, stripe_h,
+                                   facecolor=colors[idx % 2], edgecolor="none", zorder=zorder + 1))
+        if accent:
+            ax.add_patch(Rectangle((x, y + height * 0.45), width * 0.45, height * 0.55,
+                                   facecolor=accent, edgecolor="none", zorder=zorder + 2))
+
+    ax.add_patch(Rectangle((x, y), width, height, facecolor="none", edgecolor=border, lw=0.6, zorder=zorder + 4))
+
+
 def plot_tournament_tree(knockout_matches: List, output_path: Path, simulation_log_probability=None) -> None:
     """
     Draw a two-sided World Cup bracket similar to broadcast tournament trees.
@@ -190,22 +325,15 @@ def plot_tournament_tree(knockout_matches: List, output_path: Path, simulation_l
     for x, label in headings:
         ax.text(x, 0.965, label, color=text, fontsize=12, ha="center", va="center", fontweight="bold", alpha=0.95)
 
-    def short_team(team):
-        return team.upper() if len(team) <= 14 else team[:13].upper() + "."
+    def short_team(team, limit=13):
+        return team.upper() if len(team) <= limit else team[:limit - 1].upper() + "."
 
-    def match_label(match):
-        suffix = " (P)" if match.decided_by != "90 minutes" else ""
-        return (
-            f"M{match.match_number}  {match.date[5:]}\n"
-            f"{short_team(match.team_a):<14} {match.goals_a}\n"
-            f"{short_team(match.team_b):<14} {match.goals_b}{suffix}"
-        )
+    def score_for(match, team):
+        score = match.goals_a if team == match.team_a else match.goals_b
+        suffix = "P" if match.decided_by != "90 minutes" and team == match.winner else ""
+        return f"{score}{suffix}"
 
-    def winner_label(match):
-        suffix = "P" if match.decided_by != "90 minutes" else ""
-        return f"{short_team(match.winner)}\n{match.goals_a}-{match.goals_b}{suffix}"
-
-    def draw_card(x, y, label, width, height, fontsize=7.5, face=panel, edge=None, align="center"):
+    def draw_text_box(x, y, label, fontsize=7.5, face=panel, edge=None, align="center"):
         ax.text(
             x,
             y,
@@ -223,6 +351,36 @@ def plot_tournament_tree(knockout_matches: List, output_path: Path, simulation_l
                 linewidth=1.2,
             ),
         )
+
+    def draw_match_card(x, y, match, side_name):
+        card_w, card_h = 0.155, 0.060
+        x0 = x - card_w / 2
+        y0 = y - card_h / 2
+        ax.add_patch(Rectangle((x0, y0), card_w, card_h, facecolor=panel, edgecolor=panel, lw=1.0, zorder=1))
+        ax.text(x0 + card_w * 0.50, y0 + card_h * 0.82, f"M{match.match_number}  {match.date[5:]}",
+                color=muted, fontsize=5.8, ha="center", va="center", fontweight="bold", zorder=3)
+
+        rows = [(match.team_a, match.goals_a), (match.team_b, match.goals_b)]
+        for idx, (team, goals) in enumerate(rows):
+            yy = y0 + card_h * (0.58 if idx == 0 else 0.25)
+            flag_x = x0 + (0.020 if side_name == "left" else card_w - 0.046)
+            _draw_flag(ax, team, flag_x, yy - 0.010, 0.028, 0.020, zorder=4)
+            if side_name == "left":
+                ax.text(flag_x + 0.034, yy, short_team(team, 12), color=text, fontsize=6.2,
+                        ha="left", va="center", fontweight="bold", zorder=4)
+                ax.text(x0 + card_w - 0.012, yy, score_for(match, team), color=text, fontsize=6.4,
+                        ha="right", va="center", fontweight="bold", zorder=4)
+            else:
+                ax.text(x0 + 0.012, yy, score_for(match, team), color=text, fontsize=6.4,
+                        ha="left", va="center", fontweight="bold", zorder=4)
+                ax.text(flag_x - 0.008, yy, short_team(team, 12), color=text, fontsize=6.2,
+                        ha="right", va="center", fontweight="bold", zorder=4)
+
+    def draw_winner_flag(x, y, match, scale=1.0):
+        flag_w, flag_h = 0.040 * scale, 0.028 * scale
+        _draw_flag(ax, match.winner, x - flag_w / 2, y - flag_h / 2, flag_w, flag_h, zorder=5)
+        ax.text(x, y - flag_h * 0.90, f"{score_for(match, match.winner)}", color=text, fontsize=5.8 * scale,
+                ha="center", va="center", fontweight="bold", zorder=6)
 
     def draw_connector(x1, y1, x2, y2, side):
         mid = (x1 + x2) / 2.0
@@ -256,13 +414,13 @@ def plot_tournament_tree(knockout_matches: List, output_path: Path, simulation_l
         sf_y = [(qf_y[0] + qf_y[1]) / 2]
 
         for match, y in zip(r32, r32_y):
-            draw_card(loc["r32_x"], y, match_label(match), 0.15, 0.055, fontsize=6.6)
+            draw_match_card(loc["r32_x"], y, match, side_name)
         for match, y in zip(r16, r16_y):
-            draw_card(loc["r16_x"], y, winner_label(match), 0.07, 0.045, fontsize=7.0, edge=line)
+            draw_winner_flag(loc["r16_x"], y, match)
         for match, y in zip(qf, qf_y):
-            draw_card(loc["qf_x"], y, winner_label(match), 0.07, 0.045, fontsize=7.0, edge=line)
+            draw_winner_flag(loc["qf_x"], y, match)
         for match, y in zip(sf, sf_y):
-            draw_card(loc["sf_x"], y, winner_label(match), 0.07, 0.045, fontsize=7.0, edge=line)
+            draw_winner_flag(loc["sf_x"], y, match)
 
         for idx, y in enumerate(r32_y):
             draw_connector(loc["r32_x"] + (0.065 if side_name == "left" else -0.065), y,
@@ -282,27 +440,19 @@ def plot_tournament_tree(knockout_matches: List, output_path: Path, simulation_l
     draw_connector(0.465, left_sf_y, 0.49, final_y, "left")
     draw_connector(0.535, right_sf_y, 0.51, final_y, "right")
 
-    draw_card(0.50, 0.56, f"{short_team(final.team_a)} {final.goals_a}", 0.08, 0.04, fontsize=8.2, edge=line)
-    draw_card(0.50, 0.47, f"{short_team(final.team_b)} {final.goals_b}", 0.08, 0.04, fontsize=8.2, edge=line)
+    _draw_flag(ax, final.team_a, 0.455, 0.545, 0.045, 0.030, zorder=6)
+    ax.text(0.505, 0.560, f"{short_team(final.team_a, 11)} {final.goals_a}", color=text, fontsize=8.0,
+            ha="left", va="center", fontweight="bold")
+    _draw_flag(ax, final.team_b, 0.455, 0.455, 0.045, 0.030, zorder=6)
+    ax.text(0.505, 0.470, f"{short_team(final.team_b, 11)} {final.goals_b}", color=text, fontsize=8.0,
+            ha="left", va="center", fontweight="bold")
     ax.plot([0.50, 0.50], [0.535, 0.495], color=line, lw=1.25)
 
     ax.text(0.50, 0.37, "WINNERS", color=muted, fontsize=10, ha="center", va="center", fontweight="bold")
-    ax.text(
-        0.50,
-        0.31,
-        short_team(champion),
-        ha="center",
-        va="center",
-        color=text,
-        fontsize=26,
-        fontweight="bold",
-        bbox=dict(
-            boxstyle="round,pad=0.45,rounding_size=0.08",
-            facecolor=winner_fill,
-            edgecolor=gold,
-            linewidth=1.8,
-        ),
-    )
+    ax.add_patch(Rectangle((0.43, 0.275), 0.14, 0.070, facecolor=winner_fill, edgecolor=gold, lw=1.8, zorder=3))
+    _draw_flag(ax, champion, 0.445, 0.291, 0.048, 0.034, zorder=5)
+    ax.text(0.505, 0.310, short_team(champion, 10), ha="left", va="center", color=text,
+            fontsize=18, fontweight="bold", zorder=6)
     likelihood_text = ""
     if simulation_log_probability is not None:
         likelihood_text = f"\nlog-likelihood: {simulation_log_probability:.1f}"
