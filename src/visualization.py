@@ -158,7 +158,7 @@ def plot_bracket(knockout_matches: List, output_path: Path) -> None:
 
 
 FLAG_SPECS = {
-    "Algeria": ("vertical", ["#006233", "#ffffff"], "#d21034"),
+    "Algeria": ("algeria", ["#006233", "#ffffff", "#d21034"], None),
     "Argentina": ("horizontal", ["#74acdf", "#ffffff", "#74acdf"], "#f6b40e"),
     "Australia": ("solid", ["#012169"], "#ffffff"),
     "Belgium": ("vertical", ["#000000", "#ffd90c", "#ef3340"], None),
@@ -180,6 +180,7 @@ FLAG_SPECS = {
     "Netherlands": ("horizontal", ["#ae1c28", "#ffffff", "#21468b"], None),
     "New Zealand": ("solid", ["#00247d"], "#cc142b"),
     "Norway": ("nordic", ["#ba0c2f", "#ffffff", "#00205b"], None),
+    "Paraguay": ("paraguay", ["#d52b1e", "#ffffff", "#0038a8"], "#1f7a3a"),
     "Portugal": ("vertical", ["#006600", "#ff0000"], "#ffcc00"),
     "Qatar": ("vertical", ["#ffffff", "#8a1538"], None),
     "Senegal": ("vertical", ["#00853f", "#fdef42", "#e31b23"], "#00853f"),
@@ -287,6 +288,37 @@ def _draw_flag(ax, team: str, x: float, y: float, width: float, height: float, z
         if accent:
             ax.add_patch(Rectangle((x, y + height * 0.45), width * 0.45, height * 0.55,
                                    facecolor=accent, edgecolor="none", zorder=zorder + 2))
+    elif kind == "algeria":
+        ax.add_patch(Rectangle((x, y), width / 2, height, facecolor=colors[0], edgecolor="none", zorder=zorder + 1))
+        ax.add_patch(Rectangle((x + width / 2, y), width / 2, height, facecolor=colors[1], edgecolor="none", zorder=zorder + 1))
+        crescent_x = x + width * 0.55
+        crescent_y = y + height * 0.50
+        radius = min(width, height) * 0.31
+        ax.add_patch(Circle((crescent_x, crescent_y), radius, facecolor=colors[2], edgecolor="none", zorder=zorder + 2))
+        ax.add_patch(Circle((crescent_x + radius * 0.42, crescent_y), radius * 0.82,
+                            facecolor=colors[1], edgecolor="none", zorder=zorder + 3))
+        star_cx = x + width * 0.68
+        star_cy = y + height * 0.50
+        outer = min(width, height) * 0.16
+        inner = outer * 0.42
+        pts = []
+        for idx in range(10):
+            angle = np.pi / 2 + idx * np.pi / 5
+            r = outer if idx % 2 == 0 else inner
+            pts.append((star_cx + r * np.cos(angle), star_cy + r * np.sin(angle)))
+        ax.add_patch(Polygon(pts, facecolor=colors[2], edgecolor="none", zorder=zorder + 4))
+    elif kind == "paraguay":
+        stripe_h = height / 3
+        for idx, color in enumerate(colors):
+            ax.add_patch(Rectangle((x, y + height - (idx + 1) * stripe_h), width, stripe_h,
+                                   facecolor=color, edgecolor="none", zorder=zorder + 1))
+        seal_r = min(width, height) * 0.18
+        seal_x = x + width * 0.50
+        seal_y = y + height * 0.50
+        ax.add_patch(Circle((seal_x, seal_y), seal_r, facecolor="#ffffff", edgecolor="#222222", lw=0.25, zorder=zorder + 2))
+        ax.add_patch(Circle((seal_x, seal_y), seal_r * 0.72, facecolor="#ffffff", edgecolor=accent, lw=0.35, zorder=zorder + 3))
+        ax.add_patch(Circle((seal_x, seal_y), seal_r * 0.23, facecolor="#f6d32d", edgecolor="none", zorder=zorder + 4))
+        ax.add_patch(Circle((seal_x, seal_y), seal_r * 0.10, facecolor=accent, edgecolor="none", zorder=zorder + 5))
 
     ax.add_patch(Rectangle((x, y), width, height, facecolor="none", edgecolor=border, lw=0.6, zorder=zorder + 4))
 
