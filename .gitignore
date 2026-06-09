@@ -1,11 +1,13 @@
 # Data files
 data/*.csv
+!data/wc26_real_fixtures.csv
 data/*.json
 data/*.xlsx
 data/*.zip
 
 # Python
 __pycache__/
+.pycache_tmp/
 *.py[cod]
 *$py.class
 *.so
@@ -54,3 +56,4 @@ env/
 # Misc
 .env
 .cache
+.matplotlib_cache/

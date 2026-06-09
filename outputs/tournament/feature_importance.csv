@@ -1,0 +1,16 @@
+feature_name,importance
+win_rate_last_year,369.0
+avg_player_rating,334.0
+possession_dominance,333.0
+passing_accuracy,332.0
+fifa_points,312.0
+possession_avg,306.0
+climate_similarity_score,292.0
+goal_efficiency,283.0
+shots_on_target_ratio,278.0
+star_power,270.0
+shots_per_game,264.0
+travel_distance_avg,262.0
+goals_scored_avg,254.0
+defensive_solidity,249.0
+form_consistency,232.0
