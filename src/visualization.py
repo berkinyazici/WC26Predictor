@@ -327,8 +327,9 @@ def plot_tournament_tree(knockout_matches: List, output_path: Path, simulation_l
     """
     Draw a two-sided World Cup bracket similar to broadcast tournament trees.
 
-    The left half contains the first eight Round of 32 matches and their path to
-    the first semifinalist. The right half mirrors the remaining eight matches.
+    The two halves follow the official match dependency tree, not chronological
+    match-number order. This keeps every displayed advancement aligned with the
+    real knockout slots.
     """
     stage_order = ["Round of 32", "Round of 16", "Quarterfinals", "Semifinals", "Final"]
     by_stage = {stage: [m for m in knockout_matches if m.stage == stage] for stage in stage_order}
@@ -418,14 +419,17 @@ def plot_tournament_tree(knockout_matches: List, output_path: Path, simulation_l
         mid = (x1 + x2) / 2.0
         ax.plot([x1, mid, mid, x2], [y1, y1, y2, y2], color=line, lw=1.25, alpha=0.95)
 
-    left_r32 = by_stage["Round of 32"][:8]
-    right_r32 = by_stage["Round of 32"][8:]
-    left_r16 = by_stage["Round of 16"][:4]
-    right_r16 = by_stage["Round of 16"][4:]
-    left_qf = by_stage["Quarterfinals"][:2]
-    right_qf = by_stage["Quarterfinals"][2:]
-    left_sf = by_stage["Semifinals"][:1]
-    right_sf = by_stage["Semifinals"][1:]
+    by_number = {match.match_number: match for match in knockout_matches}
+
+    left_r32 = [by_number[number] for number in [74, 77, 73, 75, 83, 84, 81, 82]]
+    left_r16 = [by_number[number] for number in [89, 90, 93, 94]]
+    left_qf = [by_number[number] for number in [97, 98]]
+    left_sf = [by_number[101]]
+
+    right_r32 = [by_number[number] for number in [76, 78, 79, 80, 86, 88, 85, 87]]
+    right_r16 = [by_number[number] for number in [91, 92, 95, 96]]
+    right_qf = [by_number[number] for number in [99, 100]]
+    right_sf = [by_number[102]]
 
     layout = {
         "left": {

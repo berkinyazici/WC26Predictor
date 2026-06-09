@@ -94,7 +94,7 @@ The highest-likelihood single tournament path among the 1,000 simulations has Fr
 
 The project includes two knockout visuals for different purposes:
 
-- `tournament_tree_best.png` is the main presentation graphic. It is a two-sided, flag-based tournament tree inspired by broadcast-style World Cup brackets. It shows the best single simulation path selected from the 1,000 Monte Carlo runs.
+- `tournament_tree_best.png` is the main presentation graphic. It is a two-sided, flag-based tournament tree inspired by broadcast-style World Cup brackets. It shows the best single simulation path selected from the 1,000 Monte Carlo runs and follows the official knockout match dependency order.
 - `tournament_bracket.png` is a simpler diagnostic bracket. It uses text-heavy match boxes and is mainly useful for checking match numbers, dates, scores, and winners in the generated knockout path.
 
 Both visuals are generated from the same best single simulation, but they use different layouts and levels of detail.
