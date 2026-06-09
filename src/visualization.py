@@ -195,6 +195,15 @@ FLAG_SPECS = {
 }
 
 
+DISPLAY_NAMES = {
+    "Turkey": "Türkiye",
+}
+
+
+def _display_team(team: str) -> str:
+    return DISPLAY_NAMES.get(team, team)
+
+
 def _draw_flag(ax, team: str, x: float, y: float, width: float, height: float, zorder: int = 5) -> None:
     spec = FLAG_SPECS.get(team)
     border = "#d8eef0"
@@ -359,7 +368,8 @@ def plot_tournament_tree(knockout_matches: List, output_path: Path, simulation_l
         ax.text(x, 0.965, label, color=text, fontsize=12, ha="center", va="center", fontweight="bold", alpha=0.95)
 
     def short_team(team, limit=13):
-        return team.upper() if len(team) <= limit else team[:limit - 1].upper() + "."
+        name = _display_team(team)
+        return name.upper() if len(name) <= limit else name[:limit - 1].upper() + "."
 
     def score_for(match, team):
         score = match.goals_a if team == match.team_a else match.goals_b

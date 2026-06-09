@@ -99,19 +99,19 @@ The project includes two knockout visuals for different purposes:
 
 Both visuals are generated from the same best single simulation, but they use different layouts and levels of detail.
 
-### Turkey's Path
+### Türkiye's Path
 
-In the best single simulation, Turkey reaches the Round of 16 and is eliminated by Argentina.
+In the best single simulation, Türkiye reaches the Round of 16 and is eliminated by Argentina.
 
 | Stage | Date | Match | Result | Outcome |
 | --- | --- | --- | --- | --- |
-| Group D | 2026-06-13 | Australia vs Turkey | 0-0 | Draw |
-| Group D | 2026-06-19 | Turkey vs Paraguay | 1-1 | Draw |
-| Group D | 2026-06-25 | Turkey vs United States | 1-0 | Win |
-| Round of 32 | 2026-07-03 | Turkey vs New Zealand | 3-1 | Turkey advances |
-| Round of 16 | 2026-07-07 | Argentina vs Turkey | 1-0 | Turkey eliminated |
+| Group D | 2026-06-13 | Australia vs Türkiye | 0-0 | Draw |
+| Group D | 2026-06-19 | Türkiye vs Paraguay | 1-1 | Draw |
+| Group D | 2026-06-25 | Türkiye vs United States | 1-0 | Win |
+| Round of 32 | 2026-07-03 | Türkiye vs New Zealand | 3-1 | Türkiye advances |
+| Round of 16 | 2026-07-07 | Argentina vs Türkiye | 1-0 | Türkiye eliminated |
 
-Turkey's simulated tournament exit: **Round of 16**.
+Türkiye's simulated tournament exit: **Round of 16**.
 
 ### Group Tables and Model Explainability
 
